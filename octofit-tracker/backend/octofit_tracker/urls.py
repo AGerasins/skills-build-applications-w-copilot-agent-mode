@@ -13,9 +13,29 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework import routers
+from django.http import JsonResponse
+import os
+
+# Placeholder routers for demonstration; in a real app, register viewsets here
+router = routers.DefaultRouter()
+
+def api_root(request):
+    CODESPACE_NAME = os.environ.get('CODESPACE_NAME', '')
+    base_url = f"https://{CODESPACE_NAME}-8000.app.github.dev" if CODESPACE_NAME else request.build_absolute_uri('/')[:-1]
+    return JsonResponse({
+        'users': f"{base_url}/api/users/",
+        'teams': f"{base_url}/api/teams/",
+        'activities': f"{base_url}/api/activities/",
+        'leaderboard': f"{base_url}/api/leaderboard/",
+        'workouts': f"{base_url}/api/workouts/",
+    })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
+    path('', api_root, name='api-root'),
 ]
